@@ -1,14 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
+{{template "base" .}}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About</title>
-</head>
+{{define "content"}}
 
-<body>
-This is a the about page, served from a Go template.
-</body>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <p class="mt-4">This is a the about page, served from a Go template.</p>
+            </div>
+        </div>
+    </div>
 
-</html>
+{{end}}

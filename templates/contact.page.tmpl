@@ -1,18 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
+{{template "base" .}}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact</title>
-</head>
+{{define "content"}}
 
-<body>
-<p>This is a the contact page, served from a Go template.</p>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <p class="mt-4">This is a the contact page, served from a Go template.</p>
 
-<p>The phone number passed to this template is {{index .StringMap "phone"}}</p>
+                <p>The phone number passed to this template is {{index .StringMap "phone"}}</p>
+            </div>
+        </div>
+    </div>
 
-{{ $h }}
-</body>
-
-</html>
+{{end}}

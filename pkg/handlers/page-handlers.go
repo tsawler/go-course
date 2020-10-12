@@ -1,9 +1,12 @@
 package handlers
 
 import (
+	"bytes"
 	"html/template"
 	"log"
 	"net/http"
+	"tsawler/go-course/pkg/config"
+	"tsawler/go-course/pkg/templates"
 )
 
 // TemplateData holds the data that we pass to templates
@@ -15,31 +18,63 @@ type TemplateData struct {
 }
 
 // HomePageHandler displays the home page
-func HomePageHandler(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, "home.page.tmpl", nil)
+func HomePageHandler(app config.AppConfig) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		render(w, r, "home.page.tmpl", nil, app)
+	}
 }
 
 // AboutPageHandler displays the about page
-func AboutPageHandler(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, "about.page.tmpl", nil)
+func AboutPageHandler(app config.AppConfig) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		render(w, r, "about.page.tmpl", nil, app)
+	}
 }
 
 // ContactPageHandler displays the contact page
-func ContactPageHandler(w http.ResponseWriter, r *http.Request) {
+func ContactPageHandler(app config.AppConfig) http.HandlerFunc {
 	stringMap := make(map[string]string)
 	stringMap["phone"] = "+19025551212"
 
-	renderTemplate(w, "contact.page.tmpl", &TemplateData{
+	td := TemplateData{
 		StringMap: stringMap,
-	})
+	}
+	return func(w http.ResponseWriter, r *http.Request) {
+		render(w, r, "contact.page.tmpl", &td, app)
+	}
 }
 
-// renderTemplate renders a page template
-func renderTemplate(w http.ResponseWriter, tmpl string, td *TemplateData) {
-	parsedTemplate, _ := template.ParseFiles("./templates/" + tmpl)
-	err := parsedTemplate.Execute(w, td)
-	if err != nil {
-		log.Println("Error executing template :", err)
+func render(w http.ResponseWriter, r *http.Request, tmpl string, td *TemplateData, app config.AppConfig) {
+	var templateCache map[string]*template.Template
+	if !app.UseCache {
+		_ = templates.NewTemplateCache(&app)
+	}
+	templateCache = app.TemplateCache
+
+	ts, ok := templateCache[tmpl]
+	if !ok {
+		log.Fatal("Cannot retrieve template")
 		return
 	}
+
+	buf := new(bytes.Buffer)
+	err := ts.Execute(buf, AddDefaultData(td, r, w))
+
+	if err != nil {
+		log.Fatal(w, err)
+		return
+	}
+
+	_, err = buf.WriteTo(w)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// AddDefaultData adds default data to the template
+func AddDefaultData(td *TemplateData, r *http.Request, w http.ResponseWriter) *TemplateData {
+	if td == nil {
+		td = &TemplateData{}
+	}
+	return td
 }

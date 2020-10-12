@@ -1,24 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
+{{template "base" .}}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-</head>
+{{define "content"}}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <p class="mt-4">This is a the home page, served from a Go template.</p>
 
-<body>
-<p>This is a the home page, served from a Go template.</p>
+                <p>Links:</p>
+                <ul>
+                    <li><a href="/contact">Contact</a></li>
+                    <li><a href="/about">About</a></li>
+                </ul>
 
-<p>Links:</p>
-<ul>
-    <li><a href="/contact">Contact</a></li>
-    <li><a href="/about">About</a></li>
-</ul>
+                <p>An image:</p>
+                <img src="/static/puppy.jpg" width="250">
+            </div>
+        </div>
+    </div>
 
-<p>An image:</p>
-<img src="/static/puppy.jpg" width="250">
-
-</body>
-
-</html>
+{{end}}
