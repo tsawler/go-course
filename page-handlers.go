@@ -6,13 +6,13 @@ import (
 	"net/http"
 )
 
-// About displays the about page
-func About(w http.ResponseWriter, r *http.Request) {
+// AboutPageHandler displays the about page
+func AboutPageHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "about.page.tmpl")
 }
 
-// Contact displays the contact page
-func Contact(w http.ResponseWriter, r *http.Request) {
+// ContactPageHandler displays the contact page
+func ContactPageHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "about.page.tmpl")
 }
 
