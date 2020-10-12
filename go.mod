@@ -2,7 +2,4 @@ module tsawler/go-course
 
 go 1.15
 
-require (
-	github.com/bmizerany/pat v0.0.0-20170815010413-6226ea591a40 // indirect
-	github.com/go-chi/chi v4.1.2+incompatible // indirect
-)
+require github.com/go-chi/chi v4.1.2+incompatible
