@@ -1,3 +1,3 @@
-# Go Course - Lecture 3
+# Go Course - Lecture 5
 
-An improved web server that handles multiple routes.
+Passing data to templates
