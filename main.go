@@ -10,7 +10,7 @@ import (
 const portNumber = ":8080"
 
 // main is the entrypoint to the application. It starts a web server, listening on port 8080,
-// and sets up two simple routes.
+// and passes it our routes file
 func main() {
 	srv := &http.Server{
 		Addr:              portNumber,
