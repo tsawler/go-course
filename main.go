@@ -1,15 +1,30 @@
 package main
 
+// import packages from standard lib
 import (
 	"fmt"
+	"log"
 	"net/http"
 )
 
-// main starts a simple web server on port 8080, and writes hello world to the browser in two languages.
-func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		_, _ = fmt.Fprint(w, "Hello, world! こんにちは世界")
-	})
+// Home handles requests to home page
+func Home(w http.ResponseWriter, r *http.Request) {
+	_, _ = fmt.Fprintf(w, "Hello, world!")
+}
 
-	_ = http.ListenAndServe(":8080", nil)
+// About handles requests to the about page
+func About(w http.ResponseWriter, r *http.Request) {
+	_, _ = fmt.Fprintf(w, "You chose the about page!")
+}
+
+// main is the entrypoint to the application. It starts a web server, listening on port 8080,
+// and sets up two simple routes.
+func main() {
+	http.HandleFunc("/", Home)
+	http.HandleFunc("/about", About)
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		log.Fatal("Error Starting the HTTP Server : ", err)
+		return
+	}
 }

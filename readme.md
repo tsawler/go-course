@@ -1,4 +1,3 @@
-# Go Course - Lecture 2
+# Go Course - Lecture 3
 
-This is a simple "Hello, world" program, but says hello in 
-multiple languages. It starts a simple web server, and then writes the output to a web browser.
+An improved web server that handles multiple routes.
