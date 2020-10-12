@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/justinas/nosurf"
+	"log"
 	"net/http"
 	"tsawler/go-course/pkg/helpers"
 )
@@ -18,4 +20,24 @@ func RecoverPanic(next http.Handler) http.Handler {
 		}()
 		next.ServeHTTP(w, r)
 	})
+}
+
+// SessionLoad loads the session on requests
+func SessionLoad(next http.Handler) http.Handler {
+	log.Println("Loading session...")
+	return session.LoadAndSave(next)
+}
+
+// NoSurf implements CSRF protection
+func NoSurf(next http.Handler) http.Handler {
+	csrfHandler := nosurf.New(next)
+
+	csrfHandler.SetBaseCookie(http.Cookie{
+		HttpOnly: true,
+		Path:     "/",
+		Secure:   inProduction,
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	return csrfHandler
 }

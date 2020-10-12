@@ -9,7 +9,23 @@ import (
 
 const templatePath = "./templates"
 
-var functions = template.FuncMap{}
+var app *config.AppConfig
+
+func NewTemplates(a *config.AppConfig) error {
+	app = a
+	return nil
+}
+
+// functions are functions available to golang templates
+var functions = template.FuncMap{
+	"csrf_field": CSRFField,
+}
+
+// CSRFField returns hidden form field for csrf token
+func CSRFField(t string) template.HTML {
+	str := fmt.Sprintf(`<input type="hidden" name="csrf_token" value="%s">`, t)
+	return template.HTML(str)
+}
 
 // NewTemplateCache allocates a new template cache
 func NewTemplateCache(app *config.AppConfig) error {

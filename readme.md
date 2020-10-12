@@ -1,3 +1,3 @@
-# Go Course - Lecture 7
+# Go Course - Lecture 8
 
-Switching routers, using packages, caching templates, and adding middleware.
+Sessions
