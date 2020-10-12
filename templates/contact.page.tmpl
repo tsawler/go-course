@@ -1,5 +1,13 @@
 {{template "base" .}}
 
+{{define "css"}}
+<style>
+    label {
+        font-weight: 800;
+    }
+</style>
+{{end}}
+
 {{define "content"}}
 
     <div class="container">
@@ -68,24 +76,24 @@
 {{end}}
 
 {{define "js"}}
-<script>
-    document.addEventListener("DOMContentLoaded", function (event) {
-        document.getElementById("submitButton").addEventListener("click", function(){
-            val();
+    <script>
+        document.addEventListener("DOMContentLoaded", function (event) {
+            document.getElementById("submitButton").addEventListener("click", function () {
+                val();
+            })
         })
-    })
 
-    function val() {
-        let form = document.getElementById("contact-form");
-        if (form.checkValidity() === false) {
-            this.event.preventDefault();
-            this.event.stopPropagation();
-        }
-        form.classList.add('was-validated');
+        function val() {
+            let form = document.getElementById("contact-form");
+            if (form.checkValidity() === false) {
+                this.event.preventDefault();
+                this.event.stopPropagation();
+            }
+            form.classList.add('was-validated');
 
-        if (form.checkValidity() === true) {
-            form.submit();
+            if (form.checkValidity() === true) {
+                form.submit();
+            }
         }
-    }
-</script>
+    </script>
 {{end}}
