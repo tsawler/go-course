@@ -1,3 +1,3 @@
-# Go Course - Lecture 5
+# Go Course - Lecture 6
 
-Passing data to templates
+Using a better router & serving static files
