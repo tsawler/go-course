@@ -1,3 +1,3 @@
-# Go Course - Lecture 6
+# Go Course - Lecture 7
 
-Using a better router & serving static files
+Switching routers and adding middleware
