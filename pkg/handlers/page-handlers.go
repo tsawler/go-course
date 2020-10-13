@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bytes"
+	"database/sql"
 	"fmt"
 	"github.com/justinas/nosurf"
 	"html/template"
@@ -14,7 +15,7 @@ import (
 
 var app *config.AppConfig
 
-func NewHandlers(a *config.AppConfig) {
+func NewHandlers(a *config.AppConfig, db *sql.DB) {
 	app = a
 }
 

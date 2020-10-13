@@ -2,11 +2,13 @@ package main
 
 // import packages from standard lib
 import (
+	"fmt"
 	"github.com/alexedwards/scs/v2"
 	"log"
 	"net/http"
 	"time"
 	"tsawler/go-course/pkg/config"
+	"tsawler/go-course/pkg/driver"
 	"tsawler/go-course/pkg/handlers"
 	"tsawler/go-course/pkg/templates"
 )
@@ -15,6 +17,13 @@ const portNumber = ":8080"
 const inProduction = false
 
 var session *scs.SessionManager
+var dbUser = "dbUser"
+var dbPass = "verysecret"
+var dbHost = "127.0.0.1"
+var dbPort = "3306"
+var databaseName = "myapp"
+var dbSsl = "false"
+var databaseEngine = "mysql"
 
 // main is the entry point to the application. It starts a web server, listening on port 8080,
 // and passes it our routes file
@@ -32,15 +41,31 @@ func main() {
 	// put the session in app config
 	app.Session = session
 
-	// init template cache
-	err := templates.NewTemplateCache(&app)
+	// connect to database
+	dsnString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true&tls=%s&collation=utf8_unicode_ci&timeout=5s&readTimeout5s", dbUser, dbPass, dbHost, dbPort, databaseName, dbSsl)
+
+	log.Printf("Connecting to database %s: %s & initializing pool....", databaseEngine, databaseName)
+	var db *driver.DB
+	db, err := driver.ConnectSQL(dsnString)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// give the app config to all handler functions, and not just
-	// actual handlers
-	handlers.NewHandlers(&app)
+	defer func() {
+		err := db.SQL.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	// init template cache
+	err = templates.NewTemplateCache(&app)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// give the app config and database to handler functions
+	handlers.NewHandlers(&app, db.SQL)
 
 	srv := &http.Server{
 		Addr:              portNumber,

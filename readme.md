@@ -1,7 +1,5 @@
-# Go Course - Lecture 8
+# Go Course - Lecture 9
 
-- Sessions
-- CSRF Protection
-- Handling posted form data
-- Form validation (client side)
-- Form validation (server side)
+- Connecting to a database
+- Setting up models
+- Database functions
