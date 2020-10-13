@@ -15,8 +15,6 @@ import (
 	"tsawler/go-course/pkg/templates"
 )
 
-var app *config.AppConfig
-
 type DBRepo struct {
 	App *config.AppConfig
 	DB  repository.DatabaseRepo
@@ -24,8 +22,7 @@ type DBRepo struct {
 
 var Repo *DBRepo
 
-func NewHandlers(repo *DBRepo, a *config.AppConfig) {
-	app = a
+func NewHandlers(repo *DBRepo) {
 	Repo = repo
 }
 
@@ -50,7 +47,7 @@ type TemplateData struct {
 }
 
 // HomePageHandler displays the home page
-func (m *DBRepo) HomePageHandler(app config.AppConfig) http.HandlerFunc {
+func (m *DBRepo) HomePageHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		users, err := m.DB.AllUsers()
 		if err != nil {
@@ -60,24 +57,24 @@ func (m *DBRepo) HomePageHandler(app config.AppConfig) http.HandlerFunc {
 		for _, x := range users {
 			log.Println(x.FirstName)
 		}
-		app.Session.Put(r.Context(), "remote_ip", r.RemoteAddr)
-		render(w, r, "home.page.tmpl", nil, app)
+		m.App.Session.Put(r.Context(), "remote_ip", r.RemoteAddr)
+		m.Render(w, r, "home.page.tmpl", nil)
 	}
 }
 
 // AboutPageHandler displays the about page
-func (m *DBRepo) AboutPageHandler(app config.AppConfig) http.HandlerFunc {
+func (m *DBRepo) AboutPageHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		stringMap := make(map[string]string)
-		stringMap["remote_ip"] = app.Session.GetString(r.Context(), "remote_ip")
-		render(w, r, "about.page.tmpl", &TemplateData{
+		stringMap["remote_ip"] = m.App.Session.GetString(r.Context(), "remote_ip")
+		m.Render(w, r, "about.page.tmpl", &TemplateData{
 			StringMap: stringMap,
-		}, app)
+		})
 	}
 }
 
 // ContactPageHandler displays the contact page
-func (m *DBRepo) ContactPageHandler(app config.AppConfig) http.HandlerFunc {
+func (m *DBRepo) ContactPageHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		stringMap := make(map[string]string)
 		stringMap["phone"] = "+19025551212"
@@ -86,12 +83,12 @@ func (m *DBRepo) ContactPageHandler(app config.AppConfig) http.HandlerFunc {
 			StringMap: stringMap,
 			Form:      forms.New(nil),
 		}
-		render(w, r, "contact.page.tmpl", &td, app)
+		m.Render(w, r, "contact.page.tmpl", &td)
 	}
 }
 
 // PostContactPageHandler handles posting of the contact page form
-func (m *DBRepo) PostContactPageHandler(app config.AppConfig) http.HandlerFunc {
+func (m *DBRepo) PostContactPageHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		form := forms.New(r.PostForm)
 
@@ -102,23 +99,24 @@ func (m *DBRepo) PostContactPageHandler(app config.AppConfig) http.HandlerFunc {
 		userEmail := r.Form.Get("email")
 
 		if !form.Valid() {
-			render(w, r, "contact.page.tmpl", &TemplateData{
+			m.Render(w, r, "contact.page.tmpl", &TemplateData{
 				Form: form,
-			}, app)
+			})
 			return
 		}
 
-		app.Session.Put(r.Context(), "flash", fmt.Sprintf("The user entered %s abd %s", userName, userEmail))
+		m.App.Session.Put(r.Context(), "flash", fmt.Sprintf("The user entered %s abd %s", userName, userEmail))
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 }
 
-func render(w http.ResponseWriter, r *http.Request, tmpl string, td *TemplateData, app config.AppConfig) {
+// Render renders a go template with data
+func (m *DBRepo) Render(w http.ResponseWriter, r *http.Request, tmpl string, td *TemplateData) {
 	var templateCache map[string]*template.Template
-	if !app.UseCache {
-		_ = templates.NewTemplateCache(&app)
+	if !m.App.UseCache {
+		_ = templates.NewTemplateCache(m.App)
 	}
-	templateCache = app.TemplateCache
+	templateCache = m.App.TemplateCache
 
 	ts, ok := templateCache[tmpl]
 	if !ok {
@@ -127,7 +125,7 @@ func render(w http.ResponseWriter, r *http.Request, tmpl string, td *TemplateDat
 	}
 
 	buf := new(bytes.Buffer)
-	err := ts.Execute(buf, AddDefaultData(td, r, w))
+	err := ts.Execute(buf, m.AddDefaultData(td, r, w))
 
 	if err != nil {
 		log.Fatal(w, err)
@@ -141,14 +139,14 @@ func render(w http.ResponseWriter, r *http.Request, tmpl string, td *TemplateDat
 }
 
 // AddDefaultData adds default data to the template
-func AddDefaultData(td *TemplateData, r *http.Request, w http.ResponseWriter) *TemplateData {
+func (m *DBRepo) AddDefaultData(td *TemplateData, r *http.Request, w http.ResponseWriter) *TemplateData {
 	if td == nil {
 		td = &TemplateData{}
 	}
 	td.CSRFToken = nosurf.Token(r)
-	td.Flash = app.Session.PopString(r.Context(), "flash")
-	td.Warning = app.Session.PopString(r.Context(), "warning")
-	td.Error = app.Session.PopString(r.Context(), "error")
+	td.Flash = m.App.Session.PopString(r.Context(), "flash")
+	td.Warning = m.App.Session.PopString(r.Context(), "warning")
+	td.Error = m.App.Session.PopString(r.Context(), "error")
 
 	return td
 }

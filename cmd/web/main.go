@@ -68,7 +68,7 @@ func main() {
 	repo := handlers.NewDatabaseRepo(db, &app)
 
 	// give the app config and database to handler functions
-	handlers.NewHandlers(repo, &app)
+	handlers.NewHandlers(repo)
 
 	srv := &http.Server{
 		Addr:              portNumber,
