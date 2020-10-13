@@ -15,8 +15,15 @@ import (
 
 var app *config.AppConfig
 
-func NewHandlers(a *config.AppConfig, db *sql.DB) {
+type App struct {
+	DB *sql.DB
+}
+
+var Repo App
+
+func NewHandlers(a *config.AppConfig, d *sql.DB) {
 	app = a
+	Repo.DB = d
 }
 
 // TemplateData holds the data that we pass to templates
@@ -33,7 +40,7 @@ type TemplateData struct {
 }
 
 // HomePageHandler displays the home page
-func HomePageHandler(app config.AppConfig) http.HandlerFunc {
+func (m *App) HomePageHandler(app config.AppConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		app.Session.Put(r.Context(), "remote_ip", r.RemoteAddr)
 		render(w, r, "home.page.tmpl", nil, app)
@@ -41,7 +48,7 @@ func HomePageHandler(app config.AppConfig) http.HandlerFunc {
 }
 
 // AboutPageHandler displays the about page
-func AboutPageHandler(app config.AppConfig) http.HandlerFunc {
+func (m *App) AboutPageHandler(app config.AppConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		stringMap := make(map[string]string)
 		stringMap["remote_ip"] = app.Session.GetString(r.Context(), "remote_ip")
@@ -52,7 +59,7 @@ func AboutPageHandler(app config.AppConfig) http.HandlerFunc {
 }
 
 // ContactPageHandler displays the contact page
-func ContactPageHandler(app config.AppConfig) http.HandlerFunc {
+func (m *App) ContactPageHandler(app config.AppConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		stringMap := make(map[string]string)
 		stringMap["phone"] = "+19025551212"
@@ -66,7 +73,7 @@ func ContactPageHandler(app config.AppConfig) http.HandlerFunc {
 }
 
 // PostContactPageHandler handles posting of the contact page form
-func PostContactPageHandler(app config.AppConfig) http.HandlerFunc {
+func (m *App) PostContactPageHandler(app config.AppConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		form := forms.New(r.PostForm)
 
