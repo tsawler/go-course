@@ -26,7 +26,7 @@ var dbSsl = "false"
 var databaseEngine = "mysql"
 
 // main is the entry point to the application. It starts a web server, listening on port 8080,
-// and passes it our routes file
+// connects to the database, sets up sessions, and passes in our routes file
 func main() {
 	var app config.AppConfig
 	app.UseCache = false
