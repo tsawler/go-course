@@ -64,8 +64,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// create database repository
+	repo := handlers.NewDatabaseRepo(db, &app)
+
 	// give the app config and database to handler functions
-	handlers.NewHandlers(&app, db.SQL)
+	handlers.NewHandlers(repo, &app)
 
 	srv := &http.Server{
 		Addr:              portNumber,

@@ -2,28 +2,38 @@ package handlers
 
 import (
 	"bytes"
-	"database/sql"
 	"fmt"
 	"github.com/justinas/nosurf"
 	"html/template"
 	"log"
 	"net/http"
 	"tsawler/go-course/pkg/config"
+	"tsawler/go-course/pkg/driver"
 	"tsawler/go-course/pkg/forms"
+	"tsawler/go-course/pkg/repository"
+	"tsawler/go-course/pkg/repository/dbrepo"
 	"tsawler/go-course/pkg/templates"
 )
 
 var app *config.AppConfig
 
-type App struct {
-	DB *sql.DB
+type DBRepo struct {
+	App *config.AppConfig
+	DB  repository.DatabaseRepo
 }
 
-var Repo App
+var Repo *DBRepo
 
-func NewHandlers(a *config.AppConfig, d *sql.DB) {
+func NewHandlers(repo *DBRepo, a *config.AppConfig) {
 	app = a
-	Repo.DB = d
+	Repo = repo
+}
+
+func NewDatabaseRepo(db *driver.DB, a *config.AppConfig) *DBRepo {
+	return &DBRepo{
+		App: a,
+		DB:  dbrepo.NewMySQLRepo(db.SQL, a),
+	}
 }
 
 // TemplateData holds the data that we pass to templates
@@ -40,15 +50,23 @@ type TemplateData struct {
 }
 
 // HomePageHandler displays the home page
-func (m *App) HomePageHandler(app config.AppConfig) http.HandlerFunc {
+func (m *DBRepo) HomePageHandler(app config.AppConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		users, err := m.DB.AllUsers()
+		if err != nil {
+			log.Println(err)
+		}
+
+		for _, x := range users {
+			log.Println(x.FirstName)
+		}
 		app.Session.Put(r.Context(), "remote_ip", r.RemoteAddr)
 		render(w, r, "home.page.tmpl", nil, app)
 	}
 }
 
 // AboutPageHandler displays the about page
-func (m *App) AboutPageHandler(app config.AppConfig) http.HandlerFunc {
+func (m *DBRepo) AboutPageHandler(app config.AppConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		stringMap := make(map[string]string)
 		stringMap["remote_ip"] = app.Session.GetString(r.Context(), "remote_ip")
@@ -59,7 +77,7 @@ func (m *App) AboutPageHandler(app config.AppConfig) http.HandlerFunc {
 }
 
 // ContactPageHandler displays the contact page
-func (m *App) ContactPageHandler(app config.AppConfig) http.HandlerFunc {
+func (m *DBRepo) ContactPageHandler(app config.AppConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		stringMap := make(map[string]string)
 		stringMap["phone"] = "+19025551212"
@@ -73,7 +91,7 @@ func (m *App) ContactPageHandler(app config.AppConfig) http.HandlerFunc {
 }
 
 // PostContactPageHandler handles posting of the contact page form
-func (m *App) PostContactPageHandler(app config.AppConfig) http.HandlerFunc {
+func (m *DBRepo) PostContactPageHandler(app config.AppConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		form := forms.New(r.PostForm)
 
