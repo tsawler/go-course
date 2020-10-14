@@ -2,6 +2,7 @@ package models
 
 import "time"
 
+// User describes the user object
 type User struct {
 	ID         int
 	FirstName  string
