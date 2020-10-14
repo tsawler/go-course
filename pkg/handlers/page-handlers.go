@@ -15,6 +15,7 @@ import (
 	"tsawler/go-course/pkg/templates"
 )
 
+// DBRepo holds the repository
 type DBRepo struct {
 	App *config.AppConfig
 	DB  repository.DatabaseRepo
@@ -22,10 +23,12 @@ type DBRepo struct {
 
 var Repo *DBRepo
 
+// NewHandlers creates the handlers with a repo
 func NewHandlers(repo *DBRepo) {
 	Repo = repo
 }
 
+// NewDatabaseRepo returns a new database repository and app concif
 func NewDatabaseRepo(db *driver.DB, a *config.AppConfig) *DBRepo {
 	return &DBRepo{
 		App: a,
